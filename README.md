@@ -52,7 +52,7 @@ I.e., MPI-only. It is slightly slower than `OPT` package.
 ![lj-shared-cpu-kokkos](./performance/pictures/lj-shared_cpu-kokkos.png)
 
 ### Kokkos (OpenMP backend)
-Using threading in `Kokkos` makes the code slower with respect to MPI-only execution in contrast to native `OMP` package of LAMMPS, though still faster than pure MPI when `cores=~100`. Also the claim that `OpenMP` backed with `OMP_NUM_THREADS=1` should be slower than the `Serial` above is not definitely visible.
+Using threading in `Kokkos` makes the code slower with respect to MPI-only execution at lower core values in contrast to native `OMP` package of LAMMPS, though still faster than pure MPI when `cores=~100`. Also the claim that `OpenMP` backed with `OMP_NUM_THREADS=1` should be slower than the `Serial` above is not definitely visible.
 
 ![lj-shared-cpu-kokkos-omp](./performance/pictures/lj-shared_cpu-kokkos-omp.png)
 
