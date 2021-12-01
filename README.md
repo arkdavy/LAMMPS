@@ -57,7 +57,7 @@ Using threading in `Kokkos` makes the code slower with respect to MPI-only execu
 ![lj-shared-cpu-kokkos-omp](./performance/pictures/lj-shared_cpu-kokkos-omp.png)
 
 ### Cuda: GPU & Kokkos packages
-Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is much better.
+Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is good. As good as foss-2020b-CUDA-11.1.1-kokkos.
 
 ![lj-shared-cuda](./performance/pictures/lj-shared-cuda.png)
 
@@ -71,10 +71,10 @@ Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build inc
 
  ignore the `LAMMPS-29Sep2021-foss-2021b-kokkos.eb` in the same directory (for Serial `Kokkos` backend).
 
- * `GPU` builds. Probably `foss-2021b-CUDA-11.4.1-kokkos` is a better candidate for central installation due to good single GPU performance with easyconfig (keep in mind installation instructions above):
+ * `GPU` builds. Probably `foss-2020b-CUDA-11.1.1-kokkos`  (which is `fosscuda-2020b` in EB notations) is a better candidate for central installation due to good single GPU performance and support of multiple GPUs. Note, that it was slightly slower than `foss-2021b-CUDA-11.4.1-kokkos` when running with exclusive node usage, while the tests above show a similar perfromamce. In addition, all packages can be built with this toolchain (`VTK` has problems with `foss-2021b`). Easyconfig:
 
- `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos.eb`
+ `./29Sep2021/fosscuda-2020b/easyconfigs/LAMMPS-29Sep2021-fosscuda-2020b-kokkos.eb`
 
- ignore the `LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-gpu.eb` in the same directory (which is for `GPU` package build instead of `Kokkos`).
+ ignore the `LAMMPS-29Sep2021-fosscuda-2020b-gpu.eb` in the same directory (which is for `GPU` package build instead of `Kokkos`).
 
-The setup above misses only `GPU` (not compatible with `Kokkos` in easyblock) package and `VTK` (is not built with `foss-2021b`).
+The setup above misses only `GPU` package (not compatible with `Kokkos` in easyblock).
