@@ -26,11 +26,11 @@ Finally, this is the local installations with all paths pointing inside the home
 
 ## Performance
 
-### System of study
-is a system of 55296 particles interacting via the Lennard-Jones potential.
+### Setup
+The test system consist of 55296 particles interacting via the Lennard-Jones potential. In the pictures below, legend contain numbers in brackets, which is timing of the first (left-most) data point and the last (right-most) data point. For CPU usage, the last one is more conclusinve because there is no intererence with other jobs on the node.
 
-### Avoid node exclusive usage
-Due to not yet clear reasons, the exclusive usage at partial occupation of nodes gives worse performance on Sulis for newer `foss-*` toolchains. Therefore, one should run on as much cores as requested from Slurm. To see the effect, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern. In the pictures below, legend contain numbers in the brackets, which is timing of the first (left-most) data point and the last (right-most) data point.
+### Avoid node exclusive usage at partial accupation
+Due to not yet clear reasons, the exclusive usage at *partial* occupation of nodes gives worse performance on Sulis for newer `foss-*` toolchains. Therefore, one should run on as much cores as requested from Slurm. To see the effect, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern.
 
 ### OPT package
 All toolchains perform similarly with when using `OPT` package.
