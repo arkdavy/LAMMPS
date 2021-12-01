@@ -1,0 +1,25 @@
+easyblock = 'PythonPackage'
+
+name = 'click'
+version = '7.1.2'
+
+homepage = "https://click.palletsprojects.com/en/8.0.x/"
+description = """Click is a Python package for creating beautiful command line interfaces 
+in a composable way with as little code as necessary. It's the 'Command Line Interface Creation Kit'. 
+It's highly configurable but comes with sensible defaults out of the box."""
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+sources = ['click-%(version)s-py2.py3-none-any.whl']
+checksums = ['dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc']
+
+dependencies = [('Python', '3.7.4')]
+
+download_dep_fail = True
+use_pip = True
+
+sanity_check_commands = ["python -c 'import click; print(click.DateTime())'"]
+
+sanity_pip_check = True
+
+moduleclass = 'tools'

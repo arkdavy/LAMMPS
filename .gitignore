@@ -1,0 +1,10 @@
+__pycache__
+lj/
+lj-shared/
+interface/
+slurm*
+run-*
+MPIx*
+*~
+*.swp
+log.*
