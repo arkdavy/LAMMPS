@@ -57,9 +57,9 @@ Using threading in `Kokkos` makes the code slower with respect to MPI-only execu
 ![lj-shared-cpu-kokkos-omp](./performance/pictures/lj-shared_cpu-kokkos-omp.png)
 
 ### Cuda: GPU & Kokkos packages
-Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is good.
+Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is good. Note how large is the interference between GPU-jobs running on the same node (the red line should be flat)
 
-![lj-cuda](./performance/pictures/lj-cuda.png)
+![lj-shared-cuda](./performance/pictures/lj-shared-cuda.png)
 
 ### Conclusions
  * Avoid exclusive when partially occupying a node.
