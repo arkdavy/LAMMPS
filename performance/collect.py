@@ -194,6 +194,7 @@ for system in systems:
 
 
   axcuda.legend(fontsize=9)
+  figcuda.savefig("pictures/"+system+'-cuda.pdf')
   figcuda.savefig("pictures/"+system+'-cuda.png')
   plt.clf()
   
