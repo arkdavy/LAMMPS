@@ -61,6 +61,10 @@ Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build inc
 
 ![lj-shared-cuda](./performance/pictures/lj-shared-cuda.png)
 
+compare with the node-exclusive calculations
+
+![lj-cuda](./performance/pictures/lj-cuda.png)
+
 ### Conclusions
  * Avoid exclusive when partially occupying a node.
 
