@@ -30,7 +30,7 @@ Finally, this is the local installations with all paths pointing inside the home
 The test system consist of 55296 particles interacting via the Lennard-Jones potential. In the pictures below, legend contain numbers in brackets, which is timing of the first (left-most) data point and the last (right-most) data point. For CPU usage, the last one is more conclusinve because there is no intererence with other jobs on the node.
 
 ### Avoid node exclusive usage at partial accupation
-Due to not yet clear reasons, the exclusive usage at *partial* occupation of nodes gives worse performance on Sulis for newer `foss-*` toolchains. Therefore, one should run on as much cores as requested from Slurm. To see the effect, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern.
+Due to not yet clear reasons, the exclusive usage at *partial* occupation of CPU-nodes gives worse performance on Sulis for newer `foss-*` toolchains. Therefore, one should run on as much cores as requested from Slurm. To see the effect, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern.
 
 ### OPT package
 All toolchains perform similarly with when using `OPT` package.
@@ -57,26 +57,19 @@ Using threading in `Kokkos` makes the code slower with respect to MPI-only execu
 ![lj-shared-cpu-kokkos-omp](./performance/pictures/lj-shared_cpu-kokkos-omp.png)
 
 ### Cuda: GPU & Kokkos packages
-Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is good. As good as foss-2020b-CUDA-11.1.1-kokkos.
+Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is good.
 
-![lj-shared-cuda](./performance/pictures/lj-shared-cuda.png)
+![lj-cuda](./performance/pictures/lj-cuda.png)
 
 ### Conclusions
  * Avoid exclusive when partially occupying a node.
 
-
- * `CPU` builds. I suggest `foss-2021b-kokkos-omp` (`OpenMP` `Kokkos` backend) is the best candidate. Corresponding easyconfig is here:    
+ * `CPU` build. I suggest `foss-2021b-kokkos-omp` (`OpenMP` `Kokkos` backend) is the best candidate. Corresponding easyconfig is here:    
      `./29Sep2021/foss-2021b/easyconfigs/LAMMPS-29Sep2021-foss-2021b-kokkos-omp.eb`    
  ignore the `LAMMPS-29Sep2021-foss-2021b-kokkos.eb` in the same directory (for Serial `Kokkos` backend).
 
- * `GPU` builds. Both `foss-2020b-CUDA-11.1.1-kokkos` (which is `fosscuda-2020b` in EB notations) and `foss-2021b-CUDA-11.4.1-kokkos` are good candidates for central installation. `foss-2021b-CUDA-11.4.1-kokkos` has better single-GPU perfromance, while `foss-2020b-CUDA-11.1.1-kokkos` has multiple GPU support via Kokkos.
- 
-    * `foss-2020b-CUDA-11.1.1-kokkos`. Easyconfig:    
-       `./29Sep2021/fosscuda-2020b/easyconfigs/LAMMPS-29Sep2021-fosscuda-2020b-kokkos.eb`
-  
-    * `foss-2021b-CUDA-11.4.1-kokkos`. Easyconfig:    
-      `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos.eb`    
+ * `GPU` build(1). I would recommend `foss-2021b-CUDA-11.4.1-kokkos` due to better single-GPU performance. Easyconfig:    
+      `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos.eb`  
       
-    ignore the `*-gpu.eb` in the same `*easyconfig/` directores (which is for `GPU` package build instead of `Kokkos`).
-
-* The setup above does not have the `GPU` package (not compatible with `Kokkos` in easyblock), and `VTK` could not be built in any of `foss-2021b-*`.
+ * `GPU` build(2). We can create a module with `GPU` package as well (`foss-2021b-CUDA-11.4.1-gpu`) for multi-GPU functionalilty. Easyconfig:    
+      `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-gpu.eb`
