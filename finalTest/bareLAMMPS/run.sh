@@ -17,6 +17,7 @@ export EB_PREFIX=${HOME}/easybuild-$ebversion
 # define module paths to look for
 export MODULEPATH=${EB_PREFIX}/modules/all:${EB_PREFIX}/modules/Core:${EB_PREFIX}/modules/MPI
 
+
 # load ones required for the LAMMPS execuation
 module load GCC/11.2.0 OpenMPI/4.1.1 LAMMPS/29Sep2021-kokkos-omp
 
@@ -25,3 +26,6 @@ export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 # executed command
 srun `which lmp` -in in.lammps
+
+
+
