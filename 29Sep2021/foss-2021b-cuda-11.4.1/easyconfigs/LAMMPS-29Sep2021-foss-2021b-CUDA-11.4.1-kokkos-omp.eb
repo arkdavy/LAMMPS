@@ -2,7 +2,7 @@ name = 'LAMMPS'
 version = '29Sep2021'
 local_cudasuffix = '-CUDA-%(cudaver)s'
 versionsuffix = local_cudasuffix
-versionsuffix += '-kokkos'
+versionsuffix += '-kokkos-omp'
 
 homepage = 'https://www.lammps.org'
 description = """LAMMPS is a classical molecular dynamics code, and an acronym
@@ -72,7 +72,7 @@ dependencies = [
 # https://github.com/lammps/lammps/blob/master/cmake/README.md#lammps-configuration-options
 
 # use openMP in Kokkos
-configopts  = "-DKokkos_ENABLE_SERIAL=yes "
+configopts  = "-DKokkos_ENABLE_OPENMP=yes "
 
 
 # auto-enabled by easyblock

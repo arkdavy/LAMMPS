@@ -5,15 +5,16 @@ from templates import runTemplate, lj, interface
 from functions import dataSelector, cpusAtThreads
 from setup import *
 
-submit = True
-exclusive = True
+submit = True 
 exclusive = False
 
 # overwrite the default setup variables here (for shorted execution)
 systems = ['interface']
 systems = ['lj']
-runconfig = ['cpu-omp','cpu-kokkos-omp']
-runconfig = ['cuda-kokkos','cuda-gpu']
+runconfig = ['cpu-opt', 'cpu-omp']
+runconfig = ['cuda-kokkos-omp','cuda-gpu-omp']
+runconfig = ['cuda-kokkos']
+runconfig = ['cpu-bare']
 
 countJobs = 0
 for rcfg in runconfig:
@@ -82,7 +83,7 @@ for rcfg in runconfig:
             # loop over various GPU and OpenMP settings
             for thrds in threads[rcfg]:
               for gps in gpus[rcfg]:
-        
+
                 tasks = cpusAtThreads(thrds, nsteps_cpus, mincpus, maxcpus, rcfg, gps)
 
                 if (exclusive):

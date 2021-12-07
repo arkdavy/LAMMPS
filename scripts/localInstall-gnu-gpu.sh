@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=3850
 #SBATCH --time=24:00:00
-#SBATCH --account=suXXX-gpu
+#SBATCH --account=su950-gpu
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:ampere_a100:1
 

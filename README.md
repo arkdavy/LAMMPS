@@ -10,8 +10,9 @@ cd ./29Sep2021/foss-2021b-cuda-11.4.1
 ```
 and submit the installation script from there in the following way
 ```bash
-sbatch --job=easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos.eb ../../scripts/localInstall-gnu-gpu.sh LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos.eb
+sbatch --job=easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos-omp.eb ../../scripts/localInstall-gnu-gpu.sh LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos-omp.eb
 ```
+
 note that there are slightly different settings for -cpu and -gpu builds (added to the suffix):
 
 | script                              | description               |
@@ -27,53 +28,49 @@ Finally, this is the local installations with all paths pointing inside the home
 ## Performance
 
 ### Setup
-The test system consist of 55296 particles interacting via the Lennard-Jones potential. In the pictures below, legend contain numbers in brackets, which is timing of the first (left-most) data point and the last (right-most) data point. For CPU usage, the last one is more conclusinve because there is no intererence with other jobs on the node.
+The test system consist of 55296 particles interacting via the Lennard-Jones potential. In the pictures below, legends contain numbers in brackets, which are `(timing for the first (left-most) data point | timing for the last (right-most) data point)`, all in seconds. For CPU usage, the last one is more conclusive because there is no interference with other jobs on the same node.
 
-### Avoid node exclusive usage at partial accupation
-Due to not yet clear reasons, the exclusive usage at *partial* occupation of CPU-nodes gives worse performance on Sulis for newer `foss-*` toolchains. Therefore, one should run on as much cores as requested from Slurm. To see the effect, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern.
+### Avoid node exclusive usage at partial occupation
+The exclusive usage at *partial* occupation of CPU-nodes gives a worse performance on Sulis for newer `foss-*` toolchains. This happens, most likely, due to a different way of allocating MPI ranks to sockets. Therefore, one should run on as much cores as requested from Slurm. To see the effect, check out first to a previous commit, e.g. `aacefb6f42f39cd0bebe7fe4e4ddff8055d3136d`. Then, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern.
+
+### Bare LAMMPS
+foss-2020b and foss-2021b show slightly better performance.
+
+![lj-shared-cpu-bare](./performance/pictures/lj-shared_cpu-bare.png)
 
 ### OPT package
-All toolchains perform similarly with when using `OPT` package.
+All toolchains perform similarly when using the `OPT` package.
 
 ![lj-shared-cpu-opt](./performance/pictures/lj-shared_cpu-opt.png)
-
-compare with node-exclusive calculations
-
-![lj-cpu-opt](./performance/pictures/lj_cpu-opt.png)
-
-### OMP package and bare LAMMPS
-`OMP_NUM_THREADS=4` gives a minor performance gain over the bare LAMMPS runs (providing equal total number CPUS). Moreover, It reduces some communication between MPI processes, which makes the calculations faster at `cores=~100`, where pure MPI calculations get slower.
-
-![lj-shared-cpu-ompt](./performance/pictures/lj-shared_cpu-omp.png)
 
 ### Kokkos (Serial backend)
 I.e., MPI-only. It is slightly slower than `OPT` package.
 
 ![lj-shared-cpu-kokkos](./performance/pictures/lj-shared_cpu-kokkos.png)
 
+### OMP
+`OMP_NUM_THREADS=4` gives a minor performance gain over the bare LAMMPS runs (providing equal total number CPUs). However, it reduces some communication between MPI processes, which makes the calculations faster at `cores=~100`, where pure MPI calculations get slower. Therefore, it may have a dramatic effect on a larger-scale calculations.
+
+![lj-shared-cpu-omp](./performance/pictures/lj-shared_cpu-omp.png)
+
 ### Kokkos (OpenMP backend)
-Using threading in `Kokkos` makes the code slower with respect to MPI-only execution at lower core values in contrast to native `OMP` package of LAMMPS, though still faster than pure MPI when `cores=~100`. Also the claim that `OpenMP` backed with `OMP_NUM_THREADS=1` should be slower than the `Serial` above is not definitely visible.
+Using threading in `Kokkos` makes the code slower with respect to MPI-only execution at lower core values in contrast to native `OMP` package of LAMMPS, though still faster than pure MPI (i.e., at `OMP_NUM_THREADS=1`) when `cores=~100`. Also the claim that `OpenMP` backed with `OMP_NUM_THREADS=1` should be slower than the `Serial` above is not definitely visible, but depends in a chosen system.
 
 ![lj-shared-cpu-kokkos-omp](./performance/pictures/lj-shared_cpu-kokkos-omp.png)
 
 ### Cuda: GPU & Kokkos packages
-Here we have an issue that the current `foss-2021b-CUDA-11.4.1-kokkos` build includes the `OpenMPI` which is not cuda-aware. Therefore, the corresponding runs do not benefit from multiple GPUS, although the single-GPU performance is good. Note how large is the interference between GPU-jobs running on the same node (the red line should be flat)
+In this case `foss-2021b` shows dramatic performance increase. Although the GPU package shows better scaling, this may change depending on a system of study
 
 ![lj-shared-cuda](./performance/pictures/lj-shared-cuda.png)
 
-compare with the node-exclusive calculations
-
-![lj-cuda](./performance/pictures/lj-cuda.png)
-
 ### Conclusions
- * Avoid exclusive when partially occupying a node.
+ * Avoid exclusive when partially occupying a node if possible.
 
  * `CPU` build. I suggest `foss-2021b-kokkos-omp` (`OpenMP` `Kokkos` backend) is the best candidate. Corresponding easyconfig is here:    
      `./29Sep2021/foss-2021b/easyconfigs/LAMMPS-29Sep2021-foss-2021b-kokkos-omp.eb`    
- ignore the `LAMMPS-29Sep2021-foss-2021b-kokkos.eb` in the same directory (for Serial `Kokkos` backend).
 
- * `GPU` build(1). I would recommend `foss-2021b-CUDA-11.4.1-kokkos` due to better single-GPU performance. Easyconfig:    
-      `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos.eb`  
-      
- * `GPU` build(2). We can create a module with `GPU` package as well (`foss-2021b-CUDA-11.4.1-gpu`) for multi-GPU functionalilty. Easyconfig:    
+ * `GPU` build(1). I recommend `foss-2021b-CUDA-11.4.1-kokkos-omp` due to a better single-GPU performance and access to the `OpenMP` backend as well. Easyconfig:    
+      `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos-omp.eb`  
+
+ * `GPU` build(2). We may create a module with the `GPU` package (`foss-2021b-CUDA-11.4.1-gpu`) or follow the instructions from the Sulis documentation and compile it at `home/`. Easyconfig:    
       `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-gpu.eb`

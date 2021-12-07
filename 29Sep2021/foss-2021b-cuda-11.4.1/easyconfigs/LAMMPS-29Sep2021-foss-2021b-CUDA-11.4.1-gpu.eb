@@ -27,7 +27,7 @@ sources = [
 ]
 
 patches = [
-    'LAMMPS-29Sep2021-fixdoc.patch',
+    'LAMMPS-29Sep2021-fixdoc-and-cuda-aware.patch',
 ]
 
 checksums = [

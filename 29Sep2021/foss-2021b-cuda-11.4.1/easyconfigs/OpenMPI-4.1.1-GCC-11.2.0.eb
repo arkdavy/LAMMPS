@@ -45,7 +45,6 @@ dependencies = [
 
 configopts = '--with-slurm'
 
-
 modextravars = {
     'OMPI_MCA_btl': '^ofi',
     'OMPI_MCA_mtl': '^ofi',

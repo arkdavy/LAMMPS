@@ -1,0 +1,87 @@
+log none
+
+#############################
+# P R E L I M I N A R I E S #
+#############################
+
+units lj                  # Use reduced LJ style units
+atom_style atomic         # Uncharged point particles
+atom_modify map hash      # Needed for indexing of clusters etc
+
+# Define a lattice with which to populate the simulation cell. With units
+# set to 'lj' the second argument to the lattice command is the reduced
+# density rho* and the spacings are multiples of that required to acheive
+# that density. Also define a simulation cell called 'box' in lattice units
+# and fill it with atoms. Here we're creating a box which is ten lattice
+# constants in each direction.
+lattice fcc 1.0 spacing 1 1 1
+region box block 0 24 0 24 0 24 units lattice
+create_box 1 box
+create_atoms 1 box
+
+
+# Set the mass of the first (and only) atom type.
+mass 1 1.0
+
+# Lennard-Jones interactions between particles, 3.5 sigma cut-off. Apply
+# long range tail corrections to energy and pressure and set all coefficients
+# to unity since we work in reduced units here. Note that this doesn't shift
+# the potential such that it goes to zero at the cutoff. That would require
+# pair_modify('shift', 'yes').
+#pair_style lj/cut/gpu  3.5  # GPU version
+pair_style lj/cut  3.5      # non-GPU version
+pair_modify tail  yes
+pair_coeff 1  1  1.0  1.0
+
+#############################
+#   M E L T   S Y S T E M   #
+#############################
+velocity all create 2.4 41787 mom yes dist gaussian # Assign velocities
+
+timestep 0.002   # simulation timestep
+thermo 100       # output thermodynamic data every 100 steps
+
+# Define a fix  in this case with index 1 applied to all
+# particles in the simulation. This fix is for simulations
+# in the anisotropic NPT ensemble. Note that we use the MTK
+# correction.
+fix 1 all npt temp 2.4 2.4 0.1 iso 5.0 5.0 0.5 mtk yes tchain 5 pchain 5
+
+run 50000         # run for 50000 steps
+
+#############################
+# F R E E Z E  S Y S T E M  #
+#############################
+
+# Define solid atoms. This closely follows ten Wolde  Ruiz-Montero and Frenkel  Faraday Discuss  1996  104  93-110
+# Compute components of the per-atom q6 vector
+#compute q6 all orientorder/atom degrees 1 6 components 6 nnn NULL cutoff 1.3
+
+# get number of connections
+#compute coord_number all coord/atom orientorder q6 0.5
+
+# An atom is solid if it has 8 or more connections
+#variable is_solid atom c_coord_number>=8
+#group solid dynamic all var is_solid    # Must be dynamic to update
+
+# do clustering
+#compute cluster solid cluster/atom 1.3
+
+# define chunks  one chunk per cluster
+#compute clus_chunks solid chunk/atom c_cluster
+
+# count the size of each chunk
+#compute size_chunks solid property/chunk clus_chunks count
+
+# Find the maximum entry in the vector of chunk sizes
+#variable max_n equal max(c_size_chunks)
+
+# Thermo style which includes this variable
+#thermo_style custom step temp pe vol v_max_n
+
+#thermo 1000  # Print the thermo information every 1000 steps
+
+# Reset the npt fix at a lower temperature (below freezing)
+#fix 1  all npt temp  0.65  0.65  0.1  iso  5.0  5.0  0.5  mtk yes tchain  5  pchain  5
+
+run 50000  # Run for this many steps
