@@ -66,11 +66,11 @@ In this case `foss-2021b` shows dramatic performance increase. Although the GPU 
 ### Conclusions
  * Avoid exclusive when partially occupying a node if possible.
 
- * `CPU` build. I suggest `foss-2021b-kokkos-omp` (`OpenMP` `Kokkos` backend) is the best candidate. Corresponding easyconfig is here:    
+ * `CPU` build.  `foss-2021b-kokkos-omp` (`OpenMP` `Kokkos` backend) is probably the best candidate. Corresponding easyconfig is here:    
      `./29Sep2021/foss-2021b/easyconfigs/LAMMPS-29Sep2021-foss-2021b-kokkos-omp.eb`    
 
- * `GPU` build(1). I recommend `foss-2021b-CUDA-11.4.1-kokkos-omp` due to a better single-GPU performance and access to the `OpenMP` backend as well. Easyconfig:    
+ * `GPU` build(1).  `foss-2021b-CUDA-11.4.1-kokkos-omp` shows a great single-GPU performance and is compiled with `OpenMP` backend    
       `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-kokkos-omp.eb`  
 
- * `GPU` build(2). We may create a module with the `GPU` package (`foss-2021b-CUDA-11.4.1-gpu`) or follow the instructions from the Sulis documentation and compile it at `home/`. Easyconfig:    
+ * `GPU` build(2). One may create a module with `GPU` package (`foss-2021b-CUDA-11.4.1-gpu`) or suggest anyone to follow the instructions from the Sulis documentation for `home/` compilation
       `./29Sep2021/foss-2021b-cuda-11.4.1/easyconfigs/LAMMPS-29Sep2021-foss-2021b-CUDA-11.4.1-gpu.eb`
