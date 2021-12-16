@@ -84,6 +84,8 @@ def cpusAtThreads(threads, nsteps, mincpus, maxcpus, rcfg, ngpu):
 
     if tasks[-1] != maxtasks:
         tasks.append(maxtasks)
+    if tasks[0] != 1:
+        tasks.insert(0,1)
 
 #    if (rcfg == 'cuda-kokkos-mpicuda'):
 #        # leave only primes of gpu number in the tasks list

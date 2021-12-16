@@ -28,43 +28,46 @@ Finally, this is the local installations with all paths pointing inside the home
 ## Performance
 
 ### Setup
-The test system consist of 55296 particles interacting via the Lennard-Jones potential. In the pictures below, legends contain numbers in brackets, which are `(timing for the first (left-most) data point | timing for the last (right-most) data point)`, all in seconds. For CPU usage, the last one is more conclusive because there is no interference with other jobs on the same node.
+The test system consist of 55296 particles interacting via the Lennard-Jones potential. In the pictures below, legends contain numbers in brackets, which are `(timing for the first (left-most) data point | timing for the last (right-most) data point)`, all in seconds. For CPU usage, the last one is more conclusive because there is no interference with other jobs on the same node. In pure MPI and in runs with single openMP thread per MPI task the number of MPI tasks is equal to the number of CPU cores allocated for a job. When using a larger number of threads, the number of MPI tasks can be evaluated as number of cores for a chosen data point divided the number of OpenMP threads. We also estimate the parallel efficiency (`p. efficiency` on plots) as `T[1]/(N T[N])` where `T[x]` is timing when running on `x` CPUs.
 
 ### Avoid node exclusive usage at partial occupation
-The exclusive usage at *partial* occupation of CPU-nodes gives a worse performance on Sulis for newer `foss-*` toolchains. This happens, most likely, due to a different way of allocating MPI ranks to sockets. Therefore, one should run on as much cores as requested from Slurm. To see the effect, check out first to a previous commit, e.g. `aacefb6f42f39cd0bebe7fe4e4ddff8055d3136d`. Then, compare plots with  `*shared*` pattern in the file name inside the `./performance/pictures` directory, with ones without (i.e., exclusive node usage) the pattern.
+The exclusive usage at *partial* occupation of CPU-nodes gives a worse performance on Sulis for newer `foss-*` toolchains. This happens, most likely, due to a different way of allocating MPI ranks to sockets. Therefore, one should run on as much cores as requested from Slurm. To see the effect, check out first to a previous commit, e.g. `aacefb6f42f39cd0bebe7fe4e4ddff8055d3136d`.
 
 ### Bare LAMMPS
 foss-2020b and foss-2021b show slightly better performance.
 
-![lj-shared-cpu-bare](./performance/pictures/lj-shared_cpu-bare.png)
+![lj-cpu-bare](./performance/pictures/lj_cpu-bare.png)
 
 ### OPT package
-All toolchains perform similarly when using the `OPT` package.
+Similar result gives `OPT` package, although all calculations are faster overall.
 
-![lj-shared-cpu-opt](./performance/pictures/lj-shared_cpu-opt.png)
+![lj-cpu-opt](./performance/pictures/lj_cpu-opt.png)
 
 ### Kokkos (Serial backend)
-I.e., MPI-only. It is slightly slower than `OPT` package.
+I.e., MPI-only. It gives similar timing as bare LAMMPS.
 
-![lj-shared-cpu-kokkos](./performance/pictures/lj-shared_cpu-kokkos.png)
+![lj-cpu-kokkos](./performance/pictures/lj_cpu-kokkos.png)
 
 ### OMP
-`OMP_NUM_THREADS=4` gives a minor performance gain over the bare LAMMPS runs (providing equal total number CPUs). However, it reduces some communication between MPI processes, which makes the calculations faster at `cores=~100`, where pure MPI calculations get slower. Therefore, it may have a dramatic effect on a larger-scale calculations.
+`OMP_NUM_THREADS=2` gives around 20% performance gain over the bare LAMMPS runs and around 8% in comparison with `OMP_NUM_THREADS=1` calculation. Moreover, the best single node timing was achieved in this case with `foss-2021b` toolchain. The `OMP_NUM_THREADS=4`, however, reduces some communication between MPI processes, which makes the calculations faster at `cores=~100`, where pure MPI calculations get slower. Although the parallel efficiency is as low as 50% in this range, it may give benefits in larger-scale calculations.
 
-![lj-shared-cpu-omp](./performance/pictures/lj-shared_cpu-omp.png)
+![lj-cpu-omp](./performance/pictures/lj_cpu-omp.png)
 
 ### Kokkos (OpenMP backend)
-`OMP_NUM_THREADS=4` still gives a better perfromance, which is visible when checking 128-processors runs. The intermediate range (with less than 128 cores) is not that conclisive due to jobs overlap on a node (applies to the `OMP` case as well).
+Similar bahaviour as with `OMP` package, although slightly slower overall.
 
-![lj-shared-cpu-kokkos-omp](./performance/pictures/lj-shared_cpu-kokkos-omp.png)
+![lj-cpu-kokkos-omp](./performance/pictures/lj_cpu-kokkos-omp.png)
 
 ### Cuda: GPU & Kokkos packages
+The best performance is achieved when the number of requested GPUs is equal to the number of MPI tasks utilising one CPU each (i.e., no threading).
 In this case `foss-2021b` shows dramatic performance increase. Although the GPU package shows better scaling, this may change depending on a system of study
 
-![lj-shared-cuda](./performance/pictures/lj-shared-cuda.png)
+![lj-cuda](./performance/pictures/lj-cuda.png)
 
 ### Conclusions
  * Avoid exclusive when partially occupying a node if possible.
+
+ * Calculations running on 128 cores have low parallel efficiency for chosen LJ system. This, however, may change when considering a different system, running a different types of calculations or using more complicated forces. The immediate advise would be trying to run on less than 64 cores. Another suggestion would be to test the parallel efficiency in a particular situation.
 
  * `CPU` build.  `foss-2021b-kokkos-omp` (`OpenMP` `Kokkos` backend) is probably the best candidate. Corresponding easyconfig is here:    
      `./29Sep2021/foss-2021b/easyconfigs/LAMMPS-29Sep2021-foss-2021b-kokkos-omp.eb`    

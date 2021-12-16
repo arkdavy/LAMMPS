@@ -17,8 +17,7 @@ def adjustLegend(legend, figure):
         t.set_position((shift,0))
 
 # overwrite the default setup variables here (for shorted execution)
-systems = ['lj-shared']
-#runconfig = ['cpu-bare','cpu-opt']
+systems = ['lj']
 
 print("*** COLLECTING ***")
 
@@ -68,12 +67,12 @@ for system in systems:
                        timing[tkey].append([threads*tasks, x.seconds, gpus, threads, tasks])
 
 
-print(timing)
+#print(timing)
 
 print("*** PLOTTING ***")
 
-xlimcpu = (10.5, 132.5)
-ylimcpu = (85, 560.0)
+xlimcpu = (10.2, 132.5)
+ylimcpu = (50, 560)
 
 
 for system in systems:
@@ -83,12 +82,12 @@ for system in systems:
 
   # cuda pictures
   figcuda, axcuda = initFigure(6, 4, maxcpus, 'CUDA (Kokkos & GPU pkgs)')
-  axcuda.set_xlabel('GPUs')
+  axcuda[1].set_xlabel('GPUs')
   axcuda_idx = -1
 
   # cuda pictures
   figcuda_omp, axcuda_omp = initFigure(6, 4, maxcpus, 'CUDA + OpenMP (Kokkos & GPU pkgs)')
-  axcuda_omp.set_xlabel('GPUs')
+  axcuda_omp[1].set_xlabel('GPUs')
   axcuda_omp_idx = -1
 
   for rcfg in runconfig:
@@ -99,10 +98,10 @@ for system in systems:
 
         axs = None
         if (rcfg in ('cpu-omp','cpu-kokkos-omp')):
-           fig, ax0, axs = initFigureRow(6, 6, 2, 2, maxcpus, title)
+           fig, ax0, axs = initFigureRow(6, 7.2, 2, 2, maxcpus, title)
         else:
            # cpu-kokkos,  
-           fig, ax0 = initFigure(6, 2.5, maxcpus, title)
+           fig, ax0 = initFigure(6, 3.5, maxcpus, title)
 
         axs_idx = -1
 
@@ -141,30 +140,42 @@ for system in systems:
 
                     axs[axs_idx].set_title(version + "-" + compiler, fontsize = 8)
                     axs[axs_idx].set_xlim(xlimcpu)
-                    axs[axs_idx].set_ylim(ylimcpu)
-                    ax0.set_xlim(xlimcpu)
-                    ax0.set_ylim(ylimcpu)
+                    axs[axs_idx].set_ylim([0,1.5])
+                    ax0[0].set_xlim(xlimcpu) ; ax0[1].set_xlim(xlimcpu)
+                    ax0[0].set_ylim(ylimcpu) ; ax0[1].set_ylim([0,1])
 
+                    cpu1_time = None
                     for thrd in uniqueThreads:
 
                        idx_threads = np.where(timing_vc[:,3]==thrd)[0]
                        dat = timing_vc[idx_threads,:]
                        x, y = dat[:,0], dat[:,1]
                        idx = np.argsort(x)
+                       x, y = x[idx], y[idx]
+                       if thrd == 1:
+                           cpu1_time = y[0]
 
-                       firsty, lasty = y[idx[0]], y[idx[-1]]
+                       print(x,y)
+                       pefficiency = [cpu1_time/(xx*yy) for (xx,yy) in zip(x,y)]
+
+                       firsty, lasty = y[0], y[-1]
                        lammps_label = "LAMMPS-{}-{} ({}|{})".format(version, compiler, firsty, lasty)
-                       thread_label = "thrds={} ({}|{})".format(thrd, firsty, lasty)
 
-
-                       if (thrd == 1):  plotxy(x[idx], y[idx], '-*', ax0, color = lineBaseColors[axs_idx], 
+                       if (thrd == 1):  
+                           plotxy(x, y, '-*', ax0[0], color = lineBaseColors[axs_idx], 
                                                                 markersize = markersize, label = lammps_label)
 
+                           plotxy(x, pefficiency, '-*', ax0[1], color = lineBaseColors[axs_idx], 
+                                                                markersize = markersize, label = lammps_label)
+
+
                        mixedColor = colorFader(lineBaseColors[axs_idx],  lineFadeColors[axs_idx], (thrd-1)/np.amax(uniqueThreads), power=0.5)
-                       plotxy(x[idx], y[idx], '-*', axs[axs_idx], color = mixedColor, 
+
+                       thread_label = "thrds={} ({}|{:3})".format(thrd, firsty, lasty)
+                       plotxy(x, pefficiency, '-*', axs[axs_idx], color = mixedColor, 
                                                markersize = markersize, label = thread_label)
 
-                       timing2Table[rcfg][compiler][thrd] = y[idx[-1]]
+                       timing2Table[rcfg][compiler][thrd] = y[-1]
 
                 else:
 
@@ -176,7 +187,10 @@ for system in systems:
                     lammps_label = "LAMMPS-{}-{} ({}|{})".format(version, compiler, firsty, lasty)
 
                     lineBaseColors[axs_idx]
-                    plotxy(x[idx], y[idx], '-*', ax0, color = lineBaseColors[axs_idx], 
+                    plotxy(x[idx], y[idx], '-*', ax0[0], color = lineBaseColors[axs_idx], 
+                                            markersize = markersize, label = lammps_label)
+
+                    plotxy(x[idx], [y[idx[0]]/(xx*yy) for (xx,yy) in zip(x[idx],y[idx])], '-*', ax0[1], color = lineBaseColors[axs_idx], 
                                             markersize = markersize, label = lammps_label)
 
 
@@ -187,11 +201,11 @@ for system in systems:
 
                         axcuda_idx += 1
 
-                        ax0.set_xlim([0.8,3.2])
+                        ax0[0].set_xlim([0.8,3.2])
 
-                        axcuda.set_xlim([0.8,3.2])
+                        axcuda[0].set_xlim([0.8,3.2])
 
-                        plotxy(x[idx], y[idx], '-*', axcuda, color = lineBaseColors[axcuda_idx], 
+                        plotxy(x[idx], y[idx], '-*', axcuda[0], color = lineBaseColors[axcuda_idx], 
                                                 markersize = markersize, label = lammps_label)
 
                         for xx, yy  in zip(x[idx], y[idx]):
@@ -201,38 +215,36 @@ for system in systems:
 
                         axcuda_omp_idx += 1
 
-                        ax0.set_xlim([0.8,3.2])
+                        ax0[0].set_xlim([0.8,3.2])
 
-                        axcuda.set_xlim([0.8,3.2])
+                        axcuda_omp[0].set_xlim([0.8,3.2])
 
-                        plotxy(x[idx], y[idx], '-*', axcuda_omp, color = lineBaseColors[axcuda_omp_idx], 
+                        plotxy(x[idx], y[idx], '-*', axcuda_omp[0], color = lineBaseColors[axcuda_omp_idx], 
                                                 markersize = markersize, label = lammps_label)
 
                         for xx, yy  in zip(x[idx], y[idx]):
                           timing2Table[rcfg][compiler][xx] = yy
 
                     if (rcfg.find('cpu') >=0):
-                          ax0.set_xlim(xlimcpu)
-                          ax0.set_ylim(ylimcpu)
+                          ax0[0].set_xlim(xlimcpu) ; ax0[1].set_xlim(xlimcpu)
+                          ax0[0].set_ylim(ylimcpu) ; ax0[1].set_ylim([0,1])
                           timing2Table[rcfg][compiler][1] = y[idx[-1]]
 
 
 
-        ax0.legend(fontsize=9)
- #       adjustLegend(ax0.get_legend(), fig)
+        ax0[0].legend(fontsize=9, labelspacing=0.2)
         if (axs):
-           for ax in axs:  ax.legend(fontsize=9)
+           for ax in axs:  ax.legend(fontsize=8, labelspacing=0.1)
 
-        #fig.savefig("pictures/"+system+"_"+rcfg+'.pdf')
         fig.savefig("pictures/"+system+"_"+rcfg+'.png')
         plt.clf()
 
-  axcuda.legend(fontsize=9)
-  #figcuda.savefig("pictures/"+system+'-cuda.pdf')
+  axcuda[0].legend(fontsize=9)
   figcuda.savefig("pictures/"+system+'-cuda.png')
-  axcuda_omp.legend(fontsize=9)
-  #figcuda_omp.savefig("pictures/"+system+'-cuda-omp.pdf')
+
+  axcuda_omp[0].legend(fontsize=9)
   figcuda_omp.savefig("pictures/"+system+'-cuda-omp.png')
+
   plt.clf()
 
 linebreak = "|:---:|:---:|:---:|:---:|:---:|"
@@ -241,7 +253,6 @@ linebreak = "|:---:|:---:|:---:|:---:|:---:|"
 
 print("\nCPU timing (MPI)\n")
 printConfigs =  { 'cpu-bare': 'bare LAMMPS', 'cpu-opt': 'OPT package',}
-#print(compilers)
 items = timing2Table['cpu-bare'].keys()
 toolchains = []
 for item in items:
@@ -262,7 +273,7 @@ print("\nCPU timing (MPI + OpenMP)\n")
 printConfigs =  {'cpu-omp': 'OMP package', 'cpu-kokkos-omp':'Kokkos package'}
 print("| {} | {} |".format('toolchain'," number of threads "))
 print(linebreak)
-print("| {} | {} |".format('         '," | ".join(['1','4','8','16'])))
+print("| {} | {} |".format('         '," | ".join(['1','2','4','8'])))
 for rcfg, name in printConfigs.items():
     compilerthreadsTime = timing2Table[rcfg]
     print("| {} |".format(name))
