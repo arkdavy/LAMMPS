@@ -5,7 +5,8 @@ maxcpus = 128
 nsteps_cpus = 6
 
 multigpu = (1,2,3,)
-multithread = (1,4,8,16)
+multithread = (1,2,4,8)
+multithread = (8,)
 multithread_gpu = (42,)
 if (maxcpus < max(multigpu)):
     raise ValueError('increase the number of processors')

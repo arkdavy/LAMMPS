@@ -34,24 +34,31 @@ def initFigureRow(w, h, nrow, ncol, maxcores, title):
    vgap = 0.02
    hgap = 0.04
    botb = 0.12 - 0.01*nrow
-   header_height = 0.2 + 0.1/nrow
+   header_height = 0.3 + 0.1/nrow
    full_height = 0.65+ 0.05*nrow
-   print(header_height)
    full_width = 0.8
    offset = 0.01
 
-   ax0 = fig.add_axes([leftb, 1 - header_height - 0.08 + 0.006*nrow, full_width, header_height])
-   ax0.set_title(title)
-   ax0.tick_params(axis='x',which='both',bottom=True,top=True,direction="in")
-   ax0.tick_params(axis='y',which='both',labelright=True,left=True,right=True,direction="in")
-   ax0.grid(visible=True)
+   ax01 = fig.add_axes([leftb, 1 - 0.5*header_height-0.035, full_width, 0.45*header_height])
+   ax01.set_title(title)
+   ax01.tick_params(axis='x',which='both',bottom=True,top=True,labelbottom=False,direction="in")
+   ax01.tick_params(axis='y',which='both',labelright=True,left=True,right=True,direction="in")
+   ax01.set_ylabel('time(s)')
+   ax01.grid(visible=True)
+
+   ax02 = fig.add_axes([leftb, 1 - header_height -0.03 , full_width, 0.45*header_height])
+   ax02.tick_params(axis='x',which='both',bottom=False,top=True,direction="in")
+   ax02.tick_params(axis='y',which='both',labelright=True,left=True,right=True,direction="in")
+   ax02.set_xlabel('cores',labelpad=-0.5)
+   ax02.set_ylabel('p. efficiency')
+   ax02.grid(visible=True)
 
    axs = []
    for i in range(nrow):
     for j in range(ncol):
 
       width = (full_width-vgap*(ncol-1))/ncol 
-      height = (full_height-header_height-hgap*(nrow-1))/nrow
+      height = (1.04*full_height-header_height-hgap*(nrow-1))/nrow
 
       ax = fig.add_axes([leftb + width*j + vgap*j, botb + height*i + hgap*i, width, height])
       ax.tick_params(axis='x',which='both',bottom=True,top=True,direction="in")
@@ -74,26 +81,26 @@ def initFigureRow(w, h, nrow, ncol, maxcores, title):
    ax1.set_ylim([0,1])
    ax1.text(0.45,0.5,'cores')
    ax1.set_axis_off()
-   return fig, ax0, axs
+   return fig, [ax01,ax02], axs
 
 def initFigure(w, h, maxcores, title):
 
-   # Create figure() objects
-   # This acts as a container
-   # for the different plots
    fig = plt.figure(figsize=(w, h))
-   # first axes will surve for comparison between toolchains, selecting a single line from axes below
 
-   vgap = 0.05
    full_width = 0.8
-   offset = 0.01
 
-   ax0 = fig.add_axes([leftb, 0.2, full_width, 0.65])
-   ax0.set_title(title)
-   ax0.tick_params(axis='x',which='both',bottom=True,top=True,direction="in")
-   ax0.tick_params(axis='y',which='both',labelright=True,left=True,right=True,direction="in")
-   ax0.set_xlabel('cores')
-   ax0.set_ylabel('time(s)')
-   ax0.grid(visible=True)
+   ax01 = fig.add_axes([leftb, 0.54, full_width, 0.38])
+   ax01.set_title(title)
+   ax01.tick_params(axis='x',which='both',bottom=True,top=True,labelbottom=False,direction="in")
+   ax01.tick_params(axis='y',which='both',labelright=True,left=True,right=True,direction="in")
+   ax01.set_ylabel('time(s)')
+   ax01.grid(visible=True)
 
-   return fig, ax0
+   ax02 = fig.add_axes([leftb, 0.14, full_width, 0.38])
+   ax02.tick_params(axis='x',which='both',bottom=False,top=True,direction="in")
+   ax02.tick_params(axis='y',which='both',labelright=True,left=True,right=True,direction="in")
+   ax02.set_xlabel('cores')
+   ax02.set_ylabel('p. efficiency')
+   ax02.grid(visible=True)
+
+   return fig, [ax01, ax02]

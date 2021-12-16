@@ -37,10 +37,13 @@ module load {}
 export OMP_NUM_THREADS={}
 {}
 
+export MKL_DEBUG_CPU_TYPE=5
+export MKL_CBWR=COMPATIBLE
+
 for ntasks in {}
 do
 
-srun --cpu-bind=cores -n ${{ntasks}} -c ${{OMP_NUM_THREADS}} `which lmp` -screen MPIx${{ntasks}}_GPUx{}_THRDSx{} {} -in in.lammps
+srun -n ${{ntasks}} -c ${{OMP_NUM_THREADS}} lmp -screen MPIx${{ntasks}}_GPUx{}_THRDSx{} {} -in in.lammps
 
 done
 """.format(threads, envar, ' '.join([str(x) for x in tasks]), gpus, threads, suffix)

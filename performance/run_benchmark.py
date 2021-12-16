@@ -5,16 +5,14 @@ from templates import runTemplate, lj, interface
 from functions import dataSelector, cpusAtThreads
 from setup import *
 
-submit = True 
 exclusive = False
 
+submit = True
+
 # overwrite the default setup variables here (for shorted execution)
-systems = ['interface']
 systems = ['lj']
-runconfig = ['cpu-opt', 'cpu-omp']
-runconfig = ['cuda-kokkos-omp','cuda-gpu-omp']
-runconfig = ['cuda-kokkos']
-runconfig = ['cpu-bare']
+runconfig = ['cpu-bare','cpu-omp','cpu-opt','cpu-kokkos','cpu-kokkos-omp']
+runconfig = ['cpu-omp']
 
 countJobs = 0
 for rcfg in runconfig:
@@ -34,9 +32,9 @@ for rcfg in runconfig:
           p_init = Path.cwd()
         
           if (exclusive):
-            prefix = system + '/' + rcfg + '/'
+            prefix = system + 'exclusive/' + rcfg + '/'
           else:
-            prefix = system + '-shared/' + rcfg + '/'
+            prefix = system + '/' + rcfg + '/'
 
         
           p = Path(prefix+version); p.mkdir(exist_ok=True, parents=True)
@@ -74,8 +72,8 @@ for rcfg in runconfig:
             os.chdir(p_run)
             print(Path.cwd())
             if (submit):
-               os.system('rm run-*')
-               os.system('rm MPIx*')
+ #              os.system('rm run-*')
+             #  os.system('rm MPIx*')
                os.system('rm slurm*')
             os.chdir(p_init)
             print(Path.cwd())
@@ -119,7 +117,7 @@ for rcfg in runconfig:
                      with p.open('w') as f:
                      
                        suffix,_,_,_ = dataSelector(rcfg, thrds, gps)
-                       runtext = runTemplate(system+'-shared', version, compiler, module, tsk, thrds, [tsk], thrds, gps, suffix, rcfg, envar)
+                       runtext = runTemplate(system, version, compiler, module, tsk, thrds, [tsk], thrds, gps, suffix, rcfg, envar)
                        f.write(runtext)
                      
                        print ("system, version, compiler | ntasks | nthreads, ngpus: ", 
