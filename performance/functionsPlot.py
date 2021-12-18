@@ -64,8 +64,8 @@ def initFigureRow(w, h, nrow, ncol, maxcores, title):
       ax.tick_params(axis='x',which='both',bottom=True,top=True,direction="in")
       ax.tick_params(axis='y',which='both',left=True,right=True,direction="in")
       if (i==0 and j==0): 
-          ax.set_ylabel('time (s)')
-          ax.yaxis.set_label_coords(-0.15 , 0.5+0.7*nrow)
+          ax.set_ylabel('p. efficiency')
+          ax.yaxis.set_label_coords(-0.15 , -0.2+0.7*nrow)
       if (i==1): ax.tick_params(axis='x',which='both',labelbottom=False,direction="in")
       if (j==0): ax.tick_params(axis='y',which='both',labelleft=True,labelright=False,left=True,right=True,direction="in")
       if (j==1): ax.tick_params(axis='y',which='both',labelleft=False,labelright=True,left=True,right=True,direction="in")

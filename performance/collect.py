@@ -83,6 +83,8 @@ for system in systems:
   # cuda pictures
   figcuda, axcuda = initFigure(6, 4, maxcpus, 'CUDA (Kokkos & GPU pkgs)')
   axcuda[1].set_xlabel('GPUs')
+  axcuda[0].set_xticks([1,2,3])
+  axcuda[1].set_xticks([1,2,3])
   axcuda_idx = -1
 
   # cuda pictures
@@ -155,7 +157,6 @@ for system in systems:
                        if thrd == 1:
                            cpu1_time = y[0]
 
-                       print(x,y)
                        pefficiency = [cpu1_time/(xx*yy) for (xx,yy) in zip(x,y)]
 
                        firsty, lasty = y[0], y[-1]
@@ -182,15 +183,18 @@ for system in systems:
                     data = timing_vc
                     x, y = data[:,0], data[:,1]
                     idx = np.argsort(x)
+                    x, y = x[idx], y[idx]
 
-                    firsty, lasty = y[idx[0]], y[idx[-1]]
+                    pefficiency = [y[0]/(xx*yy) for (xx,yy) in zip(x,y)]
+
+                    firsty, lasty = y[0], y[-1]
                     lammps_label = "LAMMPS-{}-{} ({}|{})".format(version, compiler, firsty, lasty)
 
                     lineBaseColors[axs_idx]
-                    plotxy(x[idx], y[idx], '-*', ax0[0], color = lineBaseColors[axs_idx], 
-                                            markersize = markersize, label = lammps_label)
+                    plotxy(x, y, '-*', ax0[0], color = lineBaseColors[axs_idx], 
+                                       markersize = markersize, label = lammps_label)
 
-                    plotxy(x[idx], [y[idx[0]]/(xx*yy) for (xx,yy) in zip(x[idx],y[idx])], '-*', ax0[1], color = lineBaseColors[axs_idx], 
+                    plotxy(x, pefficiency, '-*', ax0[1], color = lineBaseColors[axs_idx], 
                                             markersize = markersize, label = lammps_label)
 
 
@@ -204,11 +208,15 @@ for system in systems:
                         ax0[0].set_xlim([0.8,3.2])
 
                         axcuda[0].set_xlim([0.8,3.2])
+                        axcuda[1].set_xlim([0.8,3.2])
 
-                        plotxy(x[idx], y[idx], '-*', axcuda[0], color = lineBaseColors[axcuda_idx], 
+                        plotxy(x, y, '-*', axcuda[0], color = lineBaseColors[axcuda_idx], 
+                                                markersize = markersize, label = lammps_label)
+                        plotxy(x, pefficiency, '-*', axcuda[1], color = lineBaseColors[axcuda_idx], 
                                                 markersize = markersize, label = lammps_label)
 
-                        for xx, yy  in zip(x[idx], y[idx]):
+
+                        for xx, yy  in zip(x, y):
                           timing2Table[rcfg][compiler][xx] = yy
 
                     if rcfg == 'cuda-gpu-omp' or rcfg == 'cuda-kokkos-omp':
@@ -219,16 +227,16 @@ for system in systems:
 
                         axcuda_omp[0].set_xlim([0.8,3.2])
 
-                        plotxy(x[idx], y[idx], '-*', axcuda_omp[0], color = lineBaseColors[axcuda_omp_idx], 
+                        plotxy(x, y, '-*', axcuda_omp[0], color = lineBaseColors[axcuda_omp_idx], 
                                                 markersize = markersize, label = lammps_label)
 
-                        for xx, yy  in zip(x[idx], y[idx]):
+                        for xx, yy  in zip(x, y):
                           timing2Table[rcfg][compiler][xx] = yy
 
                     if (rcfg.find('cpu') >=0):
                           ax0[0].set_xlim(xlimcpu) ; ax0[1].set_xlim(xlimcpu)
                           ax0[0].set_ylim(ylimcpu) ; ax0[1].set_ylim([0,1])
-                          timing2Table[rcfg][compiler][1] = y[idx[-1]]
+                          timing2Table[rcfg][compiler][1] = y[-1]
 
 
 
